@@ -1,0 +1,21 @@
+{
+    "title": "JavaScript Developer Roadmap",
+    "stages": [
+        {
+            "title": "First: Basics",
+            "items": ["Syntax", "Variables", "Control Structures", "Functions"]
+        },
+        {
+            "title": "Second: Advanced",
+            "items": ["ES6+", "Promises", "Async/Await", "Error Handling"]
+        },
+        {
+            "title": "Third: Frontend Development",
+            "items": ["DOM Manipulation", "Event Handling", "React", "Vue.js"]
+        },
+        {
+            "title": "Fourth: Backend Development",
+            "items": ["Node.js", "Express", "REST APIs", "Authentication"]
+        }
+    ]
+}

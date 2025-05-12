@@ -1,0 +1,21 @@
+{
+    "title": "Java Developer Roadmap",
+    "stages": [
+        {
+            "title": "First: Basics",
+            "items": ["Syntax", "Variables", "Control Structures", "OOP Basics"]
+        },
+        {
+            "title": "Second: Advanced",
+            "items": ["Collections Framework", "Generics", "Multithreading", "Exception Handling"]
+        },
+        {
+            "title": "Third: Web Development",
+            "items": ["Servlets", "JSP", "Spring Framework", "REST APIs"]
+        },
+        {
+            "title": "Fourth: DevOps",
+            "items": ["Maven", "Gradle", "Docker", "Kubernetes"]
+        }
+    ]
+}

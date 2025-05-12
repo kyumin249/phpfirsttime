@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Roadmap</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: sans-serif; }
+        .node circle { fill: #e9830e; stroke: steelblue; stroke-width: 3px; cursor: pointer; }
+        .node text { font: 14px sans-serif; }
+        .link { fill: none; stroke: #ccc; stroke-width: 2px; }
+        button { margin: 0 5px 15px 0; padding: 5px 10px; cursor: pointer; }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 30%;
+            width: 40%;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            z-index: 1000;
+        }
+        #popup h3 { margin-top: 0; }
+        #popup button { margin-top: 10px; }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        text {
+            overflow: visible;
+            white-space: pre-wrap; /* 줄바꿈 허용 */
+            font-size: 12px; /* 글꼴 크기 */
+        }
+    </style>
+</head>
+<body>
+    <h2 id="title">로드맵 로딩 중...</h2>
+
+    <!-- ✅ 타입 전환 버튼 -->
+    <div>
+        <button onclick="changeType('golang')">Golang</button>
+        <button onclick="changeType('java')">Java</button>
+        <button onclick="changeType('javascript')">JavaScript</button>
+    </div>
+
+    <svg width="100%" height="600" style="overflow: auto;"></svg>
+
+    <!-- 팝업 -->
+    <div id="overlay"></div>
+    <div id="popup">
+        <h3 id="popup-title"></h3>
+        <p id="popup-description"></p>
+        <button onclick="closePopup()">닫기</button>
+    </div>
+
+    <script>
+        function changeType(type) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('type', type);
+            window.location.href = url.toString();
+        }
+
+        function showPopup(title, description) {
+            document.getElementById('popup-title').innerText = title;
+            document.getElementById('popup-description').innerText = description || "상세 설명이 없습니다.";
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const validTypes = ['golang', 'java', 'javascript'];
+        let type = urlParams.get('type');
+
+        // 기본값 설정 및 유효성 검증
+        if (!type || !validTypes.includes(type)) {
+            type = 'golang';
+        }
+
+        fetch(`roadmap.php?type=${type}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                d3.select('#title').text(data.title);
+
+                const hierarchyData = {
+                    name: data.title,
+                    children: data.stages.map(stage => ({
+                        name: stage.title,
+                        children: stage.items.map(item => ({
+                            name: item.name
+                        }))
+                    }))
+                };
+
+                const root = d3.hierarchy(hierarchyData);
+                const treeLayout = d3.tree().size([500, 800]);
+                treeLayout(root);
+
+                const svg = d3.select("svg")
+                    .append("g")
+                    .attr("transform", "translate(50, 50)");
+
+                svg.selectAll(".link")
+                    .data(root.links())
+                    .enter()
+                    .append("path")
+                    .attr("class", "link")
+                    .attr("d", d3.linkHorizontal()
+                        .x(d => d.y)
+                        .y(d => d.x));
+
+                const node = svg.selectAll(".node")
+                    .data(root.descendants())
+                    .enter()
+                    .append("g")
+                    .attr("class", "node")
+                    .attr("transform", d => `translate(${d.y}, ${d.x})`);
+
+                node.append("circle")
+                    .attr("r", 6);
+
+                node.append("text")
+                    .attr("dx", d => d.children ? -10 : 10)
+                    .attr("dy", 4)
+                    .style("text-anchor", d => d.children ? "end" : "start")
+                    .each(function(d) {
+                        const words = d.data.name.split(" "); // 텍스트를 공백 기준으로 나눔
+                        const maxWidth = 80; // 최대 너비 설정
+                        const lineHeight = 14; // 줄 간격
+                        let line = [];
+                        let lineNumber = 0;
+                        let y = 0;
+
+                        words.forEach(word => {
+                            const testLine = [...line, word].join(" ");
+                            const testWidth = this.getComputedTextLength
+                                ? this.getComputedTextLength.call(this)
+                                : 0;
+
+                            if (testWidth > maxWidth && line.length > 0) {
+                                d3.select(this)
+                                    .append("tspan")
+                                    .attr("x", d.children ? -10 : 10)
+                                    .attr("dy", lineNumber === 0 ? 0 : lineHeight)
+                                    .text(line.join(" "));
+                                line = [word];
+                                lineNumber++;
+                            } else {
+                                line.push(word);
+                            }
+                        });
+
+                        // 마지막 줄 추가
+                        d3.select(this)
+                            .append("tspan")
+                            .attr("x", d.children ? -10 : 10)
+                            .attr("dy", lineNumber === 0 ? 0 : lineHeight)
+                            .text(line.join(" "));
+                    });
+            })
+            .catch(err => {
+                console.error("로드맵 로딩 실패:", err);
+                document.getElementById('title').innerText = "로드맵 로딩 실패: " + err.message;
+            });
+    </script>
+</body>
+</html>
+

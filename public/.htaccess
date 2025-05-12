@@ -1,0 +1,6 @@
+RewriteEngine On
+
+# 모든 요청을 index.php로 전달
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

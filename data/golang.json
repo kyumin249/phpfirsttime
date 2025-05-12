@@ -1,0 +1,21 @@
+{
+    "title": "Golang Developer Roadmap",
+    "stages": [
+        {
+            "title": "First: Basics",
+            "items": ["Syntax", "Variables", "Control Structures", "Functions"]
+        },
+        {
+            "title": "Second: Advanced",
+            "items": ["Concurrency", "Error Handling", "Testing", "Interfaces"]
+        },
+        {
+            "title": "Third: Web Development",
+            "items": ["HTTP", "REST APIs", "Web Frameworks", "Middleware"]
+        },
+        {
+            "title": "Fourth: DevOps",
+            "items": ["Docker", "Kubernetes", "CI/CD", "Monitoring"]
+        }
+    ]
+}
